@@ -1,7 +1,6 @@
-var count = 400; //number of dots
-var size = 2; //size of dots
-var c = 4; //constant scaling factor
-
+var count = 5000; //number of dots
+var size = 1; //size of dots
+var c = 3; //constant scaling factor
 
 var golden_angle = 137.508;
 //var golden_angle = 140.2554;
@@ -15,7 +14,7 @@ function angleFermat(n) {
 }
 
 function describeFermatPoint(n) {
-  return polarToCartesian(150, 150, radiusFermat(n), angleFermat(n));
+  return polarToCartesian(200, 200, radiusFermat(n), angleFermat(n));
 }
 
 function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
@@ -64,12 +63,62 @@ function describeArc(x, y, radius, startAngle, endAngle){
     return d;       
 }
 
-window.onload = function() {
+/*==========slider controls=========*/
+var maxSafe = Number.MAX_SAFE_INTEGER;
+function getMaxCount() {
+  return Math.round(Number.MAX_SAFE_INTEGER / 10000000);
+}
 
-  /*====adding plot=====*/
+function getSliderCount() {
+  return document.getElementById('sliderCount').value;
+}
+
+function getSliderSize() {
+  return document.getElementById('sliderSize').value;
+}
+
+function getSliderScale() {
+  return document.getElementById('sliderScale').value;
+}
+
+
+
+var listener = function(id) {
+  window.requestAnimationFrame(function() {
+    count = getSliderCount();
+    size = getSliderSize();
+    c = getSliderScale();
+    var svgCon = document.getElementById("svg-id")
+    while (svgCon.firstChild) {
+      svgCon.removeChild(svgCon.firstChild);
+    }
+    renderCircles(createFermatPlot(count));
+  });
+};
+
+function attachSliderEvents(ids) {
+  for (var id in ids) {
+    var rng = document.getElementById(ids[id]);
+    rng.addEventListener("mousedown", function() {
+      listener();
+      rng.addEventListener("mousemove", listener);
+    });
+    rng.addEventListener("mouseup", function() {
+      rng.removeEventListener("mousemove", listener);
+    });  
+  }
+}
+
+
+window.onload = function() {
+  
+  /*====attach slider events =====*/
+  attachSliderEvents(["sliderCount","sliderSize","sliderScale"]);
+
+  /*====render plot=====*/
   renderCircles(createFermatPlot(count));
 
-  /*====adding arc=====*/
-  document.getElementById("arc1").setAttribute("d", describeArc(150, 150, 100, 0, 270));
+  /*====render arc=====*/
+  document.getElementById("arc1").setAttribute("d", describeArc(200, 200, 100, 0, 270));
 
 };
